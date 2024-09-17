@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "@antora/cli": "3.1.9",
+    "@antora/site-generator": "3.1.9"
+  },
+  "dependencies": {
+    "@fontsource/montserrat": "^5.0.20"
+  }
+}

@@ -1,0 +1,10 @@
+= TX Prevent Documentation 
+:description: Find the right installation guide for your environment and get started with ThreatX Prevent.
+:icons: font
+
+
+== 🧭 Installation Guides
+
+* link:kubernetes.html[Deploy on Kubernetes using a ThreatX Helm Chart]
+* link:cloudformation.html[Deploy on AWS EC2 + Docker using a ThreatX CloudFormation Template]
+

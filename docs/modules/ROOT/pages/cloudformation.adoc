@@ -15,8 +15,6 @@
 :source-highlighter: highlightjs
 :imagesdir: ../images 
 :favicon: images/favicon.png
-:stylesdir: ../../../resources/theme/html
-:stylesheet: html.css
 :experimental: true
 
 == 👋 Introduction

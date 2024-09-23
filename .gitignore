@@ -8,6 +8,8 @@ _include
 *.pdf
 public/
 
+styles/
+
 # ---- Ruby ----
 *.gem
 *.rbc

@@ -8,7 +8,7 @@ on:
     alertLevel:
       description: 'Alert level'
       required: true
-      default: 'suggestion'
+      default: 'error'
       type: choice
       options:
         - suggestion

@@ -1,3 +1,4 @@
+
 build
 dist/
 /dist.zip
@@ -8,7 +9,12 @@ _include
 *.pdf
 public/
 
-styles/
+
+
+.vale/styles/AsciiDoc
+.vale/styles/RedHat
+.vale/styles/Readability
+.vale/styles/proselint
 
 # ---- Ruby ----
 *.gem

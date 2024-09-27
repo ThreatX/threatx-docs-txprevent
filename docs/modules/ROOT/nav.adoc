@@ -1,3 +1,2 @@
-.Installation Guides
 * xref:cloudformation.adoc[]
 * xref:kubernetes.adoc[]

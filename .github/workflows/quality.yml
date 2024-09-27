@@ -5,26 +5,16 @@ name: Check Documentation
 
 on:
   workflow_dispatch:
-    alertLevel:
-      description: 'Alert level'
-      required: true
-      default: 'error'
-      type: choice
-      options:
-        - suggestion
-        - warning
-        - error
-    pattern:
-      description: "Glob pattern"
-      required: true
-      default: '!*-instructions.adoc'
-      type: string
   push:
     paths:
       - 'docs/**'
+    branches:
+      - '1.0'
   pull_request:
     paths:
       - 'docs/**'
+    branches: 
+      - '1.0'
 
 jobs:
 

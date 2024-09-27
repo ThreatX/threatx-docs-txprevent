@@ -1,6 +1,6 @@
 # Descriptor of the Antora site.
 name: txprevent
-title: TX Prevent User Guide
+title: TX Prevent
 version: '1.0'
 nav:
 - modules/ROOT/nav.adoc

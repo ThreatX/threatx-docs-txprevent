@@ -1,8 +1,8 @@
-=  Installing TX Prevent on AWS EC2 : CloudFormation
+=  Installing {{product-name}} on AWS EC2 : CloudFormation
 :description: Step-by-step guide to deploying the ThreatX Prevent sensor and control plane services into a Amazon enviroment using a CloudFormation template.
 :page-category: Installation
 :page-edition: Enterprise
-:product-name: TX Prevent 
+:product-name: {{product-name}}
 :page-product-name:  {product-name}
 :organization: ThreatX
 :page-origin-type: git
@@ -14,19 +14,19 @@
 :copyright: 2024 ThreatX, Inc.
 :icons: font
 :source-highlighter: highlightjs
-:imagesdir: ../images 
+:imagesdir: ../images
 :favicon: images/favicon.png
 :experimental: true
 
 == 👋 Introduction
 
-This document will guide you through an installation of {{product-name}} into your AWS environment by using CloudFormation. 
+This document will guide you through an installation of {{product-name}} into your AWS environment by using CloudFormation.
 
 == 📐 Architecture
 
-The TX Prevent deployment architecture leverages several Amazon Web Services (AWS) components to provide a highly available and secure product.  
+The {{product-name}} deployment architecture leverages several Amazon Web Services (AWS) components to provide a highly available and secure product.
 
-Runtime sensors will deploy onto EC2 instances alongside the applications or services you want to watch. 
+Runtime sensors will deploy onto EC2 instances alongside the applications or services you want to watch.
 These sensors communicate with the {{organization}} Prevent control plane services.
 
 
@@ -58,7 +58,7 @@ image::threatx-prevent-aws-architecture.png[width=100%,role=center,title="TX Pre
 
 === 🌳️ AWS Components and Services
 
-*Application Load Balancer (ALB)* :: Fronts the ThreatX Prevent control plane services. 
+*Application Load Balancer (ALB)* :: Fronts the ThreatX Prevent control plane services.
 Each control plane service has multiple instances in at least _two_ availability zones for high availability with the ALB distributing traffic between them.
 
 *Auto Scaling Group (ASG)* :: Maintains the desired number of healthy service EC2 instances. If an instance becomes unhealthy or is unexpectedly terminated the ASG will create another instance.
@@ -93,8 +93,8 @@ Only for deployments requiring VPC connectivity between the ThreatX Prevent VPC 
 
 The following items must be completed before the deployment can begin.
 
-* [ ] 🆔 *Valid ThreatX Tenant ID* (customer name) 
-* [ ] 🗝️ *Valid ThreatX API Key*  (See: https://www.threatx.com/documentation/using-threatx/threatx-administrator-guide/#generating-and-revoking-sensor-api-keys[ThreatX Sensor API Key])  
+* [ ] 🆔 *Valid ThreatX Tenant ID* (customer name)
+* [ ] 🗝️ *Valid ThreatX API Key*  (See: https://www.threatx.com/documentation/using-threatx/threatx-administrator-guide/#generating-and-revoking-sensor-api-keys[ThreatX Sensor API Key])
 * [ ] 👤 *AWS user or role* with either the *AdministratorAccess* policy or our <<iam-permissions,custom deployment IAM policy>>
 * [ ] 🗝️ *EC2 key pair* for SSH access to the EC2 instances. (See <<ec2-key-pair>>)
 * [ ] 🐳 *Docker* installed on the EC2 instances where the sensors will be deployed
@@ -108,24 +108,24 @@ The following items must be completed before the deployment can begin.
 <<<
 
 === ☁️ Basic VPC Topology
-image::threatx-prevent-standard-vpc-topology.png[width=100%,title="ThreatX Prevent Standard VPC Topology"]
+image::threatx-prevent-standard-vpc-topology.png[width=100%,title="TX Prevent Standard VPC Topology"]
 
 [[ec2-key-pair,EC2 Key Pair]]
 === 🗝️ Creating an EC2 Key Pair
 
-The EC2 Key pair will be used to SSH into the ThreatX Control Plane EC2 instances. To create one for the install follow the steps below:* 
+The EC2 Key pair will be used to SSH into the ThreatX Control Plane EC2 instances. To create one for the install follow the steps below:*
 
 . Open the *AWS EC2 Console*.
 . Select menu:Main Menu (left)[Network & Security > Key Pairs]
 . On the 📄 *Key pairs* page, click btn:[Create key pair]
-. On the 📄 *Create Key Pair* page:     
+. On the 📄 *Create Key Pair* page:
 .. Enter a name (e.g., _<threatx-prevent>_)
 .. Select *RSA*
 .. Select *.pem* format
 .. Add any *Tags* that you want
 .. Click on btn:[Create key pair].
 
-The private key will then be downloaded to your system.  
+The private key will then be downloaded to your system.
 
 CAUTION: Put this key in a safe place. It can be used to SSH into any of ThreatX Prevent EC2's.
 
@@ -175,10 +175,10 @@ Download the https://threatx-prevent-cf-template.s3.amazonaws.com/threatx-preven
 | ApiKey                                         | String  |                                                                           | The API key for ThreatX Prevent +
 | GatewayHostname                                | String  | threatx-gateway-production-v1.xplat-production.threatx.io                 | The Gateway hostname for ThreatX Prevent +
 | AnalyzerTags                                   | String  |                                                                           | The tag values for the Runtime Analyzer +
-| AnalyzerDesiredInstances                       | Number  | `2`                                                                       | Number of desired Runtime Analyzer instances +  
+| AnalyzerDesiredInstances                       | Number  | `2`                                                                       | Number of desired Runtime Analyzer instances +
 | AnalyzerImageTag                               | String  | `1.0.1`                                                                   | The tag for the Runtime Analyzer docker image +
 | AnalyzerInstanceType                           | String  | `t3.small`                                                                | The EC2 instance type for the Runtime Analyzer instances +
-| StsDesiredInstances                            | Number  | `2`                                                                       | Number of desired Scan Template Service instances +  
+| StsDesiredInstances                            | Number  | `2`                                                                       | Number of desired Scan Template Service instances +
 | StsImageTag                                    | String  | `1.0.1`                                                                   | The tag for the Scan Template Service docker image +
 | StsInstanceType                                | String  | `t3.small`                                                                | The EC2 instance type for the Scan Template Service instances +
 | LogLevel                                       | String  | `info`                                                                    | The logging level to use for all services +
@@ -194,26 +194,26 @@ Download the https://threatx-prevent-cf-template.s3.amazonaws.com/threatx-preven
 
 . Select btn:[Create stack] and btn:[With new resources (standard)]
 
-. Select btn:[Choose an existing template]. Then add the URL for the ThreatX Prevent template to the *Amazon S3 URL* field: 
+. Select btn:[Choose an existing template]. Then add the URL for the ThreatX Prevent template to the *Amazon S3 URL* field:
 
     https://threatx-prevent-cf-template.s3.amazonaws.com/threatx-prevent.yaml
 
 image::threatx-prevent-create-stack.png[width=100%,title="ThreatX Prevent Standard VPC Setup"]
 
-. On the 📄 *Specify stack details* page: 
-.. For the *Stack Name*, enter: _ThreatXPrevent_ 
+. On the 📄 *Specify stack details* page:
+.. For the *Stack Name*, enter: _ThreatXPrevent_
 .. Review all the parameters (<<template-parameters>>) for the template. Provide values for the parameters that require input. For all other parameters, review the default settings and customize them as necessary. When you are finished, select btn:[Next].
 
 . On the 📄 *Configure Stack Options* page:
-.. (optional) Specify tags for the resources in your stack and set any advanced options you want. 
+.. (optional) Specify tags for the resources in your stack and set any advanced options you want.
 .. When you finish, choose btn:[Next].
 
-. On the 📄 *Review* page: 
-.. Review and confirm all of the template settings. 
+. On the 📄 *Review* page:
+.. Review and confirm all of the template settings.
 .. Under *Capabilities*, review and select the check boxes to acknowledge.
 .. Choose btn:[Create Stack].
 
-The ThreatX Prevent deployment is ready when the stack status is *CREATE_COMPLETE*. Stack creation should take 5 to 10 minutes. 
+The ThreatX Prevent deployment is ready when the stack status is *CREATE_COMPLETE*. Stack creation should take 5 to 10 minutes.
 
 TIP: You can watch creation events under the *Event* tab. To view all the created resources, choose the *Outputs* tab.
 
@@ -268,7 +268,7 @@ docker run -i -p 80:80 -p 50051:50051 \
 | Amazon Linux 2                                 | eth0 +
 | Ubuntu                                         | enX0 +
 | SUSE                                           | eth0 +
-| Debian                                         | enX0 +  
+| Debian                                         | enX0 +
 | RHEL                                           | eth0 +
 |=============================================================================================================================================================================================================================================================================================================================================================
 
@@ -287,31 +287,31 @@ The following CloudWatch log groups will be created. They will collect all log o
 [[iam-permissions,CloudFormation IAM Permissions]]
 == 🪪 CloudFormation IAM Permissions
 
-There are two options for obtaining the permissions needed to create the ThreatX Prevent stack:  
+There are two options for obtaining the permissions needed to create the ThreatX Prevent stack:
 
 . Using an existing user or role with the *AdministratorAccess* policy
 . Creating a new custom IAM policy with the minimum required permissions according to least privilege which will be assigned to the existing user or role you want to use for installation (continue reading next section)
 
-=== 🔐 Configure AWS with the Minimum Permissions Required for Stack Creation 
+=== 🔐 Configure AWS with the Minimum Permissions Required for Stack Creation
 
 Now we will create a custom policy with the minimum permissions required to create the ThreatX Prevent stack.
 
 ==== 📜 Create a Custom Policy
 * On the 📄 *AWS Services* page, Select btn:[IAM].
-* From 📄 *IAM Dashboard*, select 📋 menu:Main Menu (left)[Policies] 
+* From 📄 *IAM Dashboard*, select 📋 menu:Main Menu (left)[Policies]
 * On the 📄 *Policies* page, Select btn:[Create policy]
 * On the 📄 *Specify Permissions* page, under the *JSON* tab:
-. Copy the JSON below into the Policy editor. 
+. Copy the JSON below into the Policy editor.
 . ❗ Replace all placeholder instances with your actual values:
-** `<account-id>` with your __AWS Account ID__   
-** `<hosted-zone-id>` with your __AWS Route53 Hosted Zone ID__  
+** `<account-id>` with your __AWS Account ID__
+** `<hosted-zone-id>` with your __AWS Route53 Hosted Zone ID__
 
 [%collapsible%open]
-.(show or hide) *📜 CloudFormation IAM Policy JSON* 
+.(show or hide) *📜 CloudFormation IAM Policy JSON*
 ====
 
 [source,json]
-._tx-prevent-cf-iam-policy.json_ 
+._tx-prevent-cf-iam-policy.json_
 ----
 
 {
@@ -570,7 +570,7 @@ Now we will create a custom policy with the minimum permissions required to crea
 ==== 🎭 Creating A New Role For The Installation
 
 [discrete]
-===== 📄 *IAM Console* 
+===== 📄 *IAM Console*
 
 . In the *main menu* to the left, select menu:Access Management[Roles]
 . Click the btn:[Create Role] button.
@@ -593,4 +593,4 @@ Now we will create a custom policy with the minimum permissions required to crea
 [discrete]
 =====  📄 *Configure Stack Options* Page
 . Locate the *Permissions* section
-. In the *IAM Role Name* field, select the newly created role: _threatx-prevent-install_ 
+. In the *IAM Role Name* field, select the newly created role: _threatx-prevent-install_

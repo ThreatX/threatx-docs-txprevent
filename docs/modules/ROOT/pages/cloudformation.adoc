@@ -1,4 +1,4 @@
-=  Installing TX Prevent on AWS EC2 : CloudFormation
+=  Installing TX Prevent: AWS EC2 CloudFormation
 :description: Step-by-step guide to deploying the ThreatX Prevent sensor and control plane services into a Amazon enviroment using a CloudFormation template.
 :page-category: Installation
 :page-edition: Enterprise
@@ -6,7 +6,6 @@
 :page-product-name:  TX Prevent
 :organization: ThreatX
 :page-origin-type: git
-:page-edit-url: https://github.com/ThreatX/threatx-docs-txprevent/edit/main/docs/modules/ROOT/pages/cloudformation.adoc
 :toclevels: 3
 :sectlinks:
 :sectanchors:
@@ -17,6 +16,8 @@
 :imagesdir: ../images
 :favicon: images/favicon.png
 :experimental: true
+:pdf-filename: installing-tx-prevent-aws-ec2-cloudformation.pdf
+:page-pdf-filename: {pdf-filename}
 
 == 👋 Introduction
 

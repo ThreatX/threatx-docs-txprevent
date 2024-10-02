@@ -18,13 +18,14 @@
 :stylesdir: ../../../resources/theme/html
 :stylesheet: html.css
 :experimental: true
+:page-pdf-filename: installing-tx-prevent-kubernetes-helm-chart.pdf
 
 
 
 == 👋 Introduction
 
 
-This document will guide you through an installation of {{product-name}} into your Kubernetes environment. 
+This document will guide you through an installation of {product-name} into your Kubernetes environment. 
 
 image::threatx-prevent-control-plane.png[width=60%,align=center,caption="ThreatX Control Plane Services and Sensor Sidecar Injector"]
 

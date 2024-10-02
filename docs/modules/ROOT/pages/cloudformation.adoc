@@ -6,7 +6,6 @@
 :page-product-name:  TX Prevent
 :organization: ThreatX
 :page-origin-type: git
-:page-edit-url: https://github.com/ThreatX/threatx-docs-txprevent/edit/main/docs/modules/ROOT/pages/cloudformation.adoc
 :toclevels: 3
 :sectlinks:
 :sectanchors:
@@ -17,14 +16,15 @@
 :imagesdir: ../images
 :favicon: images/favicon.png
 :experimental: true
+:page-pdf-filename: installing-tx-prevent-aws-ec2-cloudformation.pdf
 
 == 👋 Introduction
 
-This document will guide you through an installation of {{product-name}} into your AWS environment by using CloudFormation.
+This document will guide you through an installation of {product-name} into your AWS environment by using CloudFormation.
 
 == 📐 Architecture
 
-The {{product-name}} deployment architecture leverages several Amazon Web Services (AWS) components to provide a highly available and secure product.
+The {product-name} deployment architecture leverages several Amazon Web Services (AWS) components to provide a highly available and secure product.
 
 Runtime sensors will deploy onto EC2 instances alongside the applications or services you want to watch.
 These sensors communicate with the {{organization}} Prevent control plane services.

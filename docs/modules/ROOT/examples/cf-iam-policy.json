@@ -1,0 +1,240 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Logs2",
+            "Effect": "Allow",
+            "Action": "logs:DescribeLogGroups",
+            "Resource": "*"
+        },
+        {
+            "Sid": "Logs",
+            "Effect": "Allow",
+            "Action": "logs:*",
+            "Resource": "arn:aws:logs:*:<account-id>:log-group:ThreatXPrevent*:*"
+        },
+        {
+            "Sid": "LaunchTemplates",
+            "Action": "ec2:CreateLaunchTemplate",
+            "Effect": "Allow",
+            "Resource": "arn:aws:ec2:*:<account-id>:launch-template/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:DescribeParameters"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:*"
+            ],
+            "Resource": "arn:aws:ssm:*:<account-id>:parameter/ThreatXPrevent*"
+        },
+        {
+            "Sid": "EC2",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:AuthorizeSecurityGroupIngress",
+                "ec2:AuthorizeSecurityGroupEgress"
+            ],
+            "Resource": "arn:aws:ec2:*:<account-id>:security-group/*",
+            "Condition": {
+                "StringLike": {
+                    "aws:ResourceTag/aws:cloudformation:stack-name": "ThreatXPrevent*"
+                }
+            }
+        },
+        {
+            "Sid": "EC2v3",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:TerminateInstances",
+                "ec2:DeleteSecurityGroup",
+                "ec2:RevokeSecurityGroupEgress",
+                "ec2:RunInstances",
+                "ec2:DescribeInstances",
+                "ec2:DescribeVpcs",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeKeyPairs",
+                "ec2:CreateSecurityGroup",
+                "ec2:CreateTags",
+                "ec2:DescribeSecurityGroups",
+                "ec2:CreateLaunchTemplate",
+                "ec2:DescribeLaunchTemplates",
+                "ec2:DescribeLaunchTemplateVersions",
+                "ec2:DeleteLaunchTemplate",
+                "ec2:CreateLaunchTemplateVersion",
+                "ec2:DeleteLaunchTemplateVersions",
+                "ec2:ModifyLaunchTemplate",
+                "elasticloadbalancing:DescribeLoadBalancers",
+                "elasticloadbalancing:DescribeLoadBalancerAttributes",
+                "elasticloadbalancing:DescribeListeners",
+                "elasticloadbalancing:DescribeListenerCertificates",
+                "elasticloadbalancing:DescribeSSLPolicies",
+                "elasticloadbalancing:DescribeRules",
+                "elasticloadbalancing:DescribeTargetGroups",
+                "elasticloadbalancing:DescribeTargetGroupAttributes",
+                "elasticloadbalancing:DescribeTargetHealth",
+                "elasticloadbalancing:DescribeTags",
+                "elasticloadbalancing:DescribeTrustStores"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "ElasticLoadbalancing",
+            "Effect": "Allow",
+            "Action": [
+                "elasticloadbalancing:CreateLoadBalancer",
+                "elasticloadbalancing:DeleteLoadBalancer",
+                "elasticloadbalancing:DescribeLoadBalancers",
+                "elasticloadbalancing:RemoveTags",
+                "elasticloadbalancing:DescribeTags",
+                "elasticloadbalancing:AddTags",
+                "elasticloadbalancing:DescribeRules",
+                "elasticloadbalancing:DescribeListeners"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "TargetGroup",
+            "Effect": "Allow",
+            "Action": [
+                "elasticloadbalancing:CreateTargetGroup",
+                "elasticloadbalancing:DeleteTargetGroup",
+                "elasticloadbalancing:ModifyTargetGroup",
+                "elasticloadbalancing:ModifyTargetGroupAttributes"
+            ],
+            "Resource": "arn:aws:elasticloadbalancing:*:<account-id>:targetgroup/ThreatXPrevent*"
+        },
+        {
+            "Sid": "ElasticLoadbalancingV2",
+            "Effect": "Allow",
+            "Action": [
+                "elasticloadbalancing:SetLoadBalancerPoliciesOfListener",
+                "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+                "elasticloadbalancing:ModifyLoadBalancerAttributes",
+                "elasticloadbalancing:ConfigureHealthCheck",
+                "elasticloadbalancing:SetWebAcl",
+                "elasticloadbalancing:ModifyListener",
+                "elasticloadbalancing:AddListenerCertificates",
+                "elasticloadbalancing:RemoveListenerCertificates",
+                "elasticloadbalancing:ModifyRule",
+                "elasticloadbalancing:CreateListener"
+            ],
+            "Resource": "arn:aws:elasticloadbalancing:*:<account-id>:loadbalancer/app/ThreatXPrevent*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "elasticloadbalancing:CreateRule",
+                "elasticloadbalancing:DeleteRule",
+                "elasticloadbalancing:DeleteListener"
+            ],
+            "Resource": [
+                "arn:aws:elasticloadbalancing:*:<account-id>:listener/app/ThreatXPrevent*",
+                "arn:aws:elasticloadbalancing:*:<account-id>:listener-rule/app/ThreatXPrevent*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "elasticloadbalancing:RegisterTargets",
+                "elasticloadbalancing:DeregisterTargets"
+            ],
+            "Resource": "arn:aws:elasticloadbalancing:*:*:targetgroup/*/*"
+        },
+        {
+            "Sid": "IAM",
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateInstanceProfile",
+                "iam:DeleteInstanceProfile",
+                "iam:GetInstanceProfile",
+                "iam:GetRole",
+                "iam:RemoveRoleFromInstanceProfile",
+                "iam:CreateRole",
+                "iam:DeleteRole",
+                "iam:AddRoleToInstanceProfile",
+                "iam:PassRole",
+                "iam:DeleteRolePolicy",
+                "iam:GetRolePolicy",
+                "iam:GetPolicy",
+                "iam:CreatePolicy",
+                "iam:DeletePolicy",
+                "iam:ListPolicyVersions",
+                "iam:TagRole",
+                "iam:DetachRolePolicy",
+                "iam:AttachRolePolicy"
+            ],
+            "Resource": [
+                "arn:aws:iam::<account-id>:role/ThreatXPrevent*",
+                "arn:aws:iam::<account-id>:policy/ThreatXPrevent*",
+                "arn:aws:iam::<account-id>:instance-profile/ThreatXPrevent*"
+            ]
+        },
+        {
+            "Sid": "IAMv2",
+            "Effect": "Allow",
+            "Action": "iam:PutRolePolicy",
+            "Resource": [
+                "arn:aws:iam::<account-id>:role/ThreatXPrevent*",
+                "arn:aws:iam::<account-id>:policy/ThreatXPrevent*"
+            ]
+        },
+        {
+            "Sid": "ACM",
+            "Effect": "Allow",
+            "Action": "acm:*",
+            "Resource": "arn:aws:acm:*:<account-id>:certificate/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:GetResourcePolicy",
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:DescribeSecret",
+                "secretsmanager:ListSecretVersionIds",
+                "secretsmanager:CreateSecret",
+                "secretsmanager:PutSecretValue",
+                "secretsmanager:TagResource",
+                "secretsmanager:DeleteSecret"
+            ],
+            "Resource": "arn:aws:secretsmanager:*:<account-id>:secret:/ThreatXPrevent*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "secretsmanager:ListSecrets",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "route53:ChangeResourceRecordSets",
+                "route53:GetHostedZone"
+            ],
+            "Resource": "arn:aws:route53:::hostedzone/<hosted-zone-id>"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "route53:GetChange",
+            "Resource": "arn:aws:route53:::change/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "autoscaling:CreateAutoScalingGroup",
+                "autoscaling:UpdateAutoScalingGroup",
+                "autoscaling:DescribeAutoScalingGroups",
+                "autoscaling:PutScalingPolicy",
+                "autoscaling:DescribePolicies",
+                "autoscaling:DeletePolicy",
+                "autoscaling:DeleteAutoScalingGroup",
+                "autoscaling:DescribeScalingActivities"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

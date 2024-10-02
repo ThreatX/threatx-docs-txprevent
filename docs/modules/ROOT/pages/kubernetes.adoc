@@ -2,7 +2,7 @@
 :description: Step-by-step guide to deploying the ThreatX Prevent sensor and control plane services into a Kuberntes environment.
 :page-category: Installation
 :page-edition: Enterprise
-:product-name: TX Prevent 
+:product-name: TX Prevent
 :page-module: ROOT
 :page-origin-type: git
 :page-edit-url: https://github.com/ThreatX/txprevent-docs/edit/main/docs/modules/ROOT/pages/kubernetes.adoc
@@ -13,19 +13,19 @@
 :sectids:
 :copyright: 2024 ThreatX, Inc.
 :icons: font
-:imagesdir: ../images 
+:imagesdir: ../images
 :favicon: images/favicon.png
 :stylesdir: ../../../resources/theme/html
 :stylesheet: html.css
 :experimental: true
-:page-pdf-filename: installing-tx-prevent-kubernetes-helm-chart.pdf
+:page-pdf-filename: installing-tx-prevent-on-kubernetes-helm-chart.pdf
 
 
 
 == 👋 Introduction
 
 
-This document will guide you through an installation of {product-name} into your Kubernetes environment. 
+This document will guide you through an installation of {product-name} into your Kubernetes environment.
 
 image::threatx-prevent-control-plane.png[width=60%,align=center,caption="ThreatX Control Plane Services and Sensor Sidecar Injector"]
 
@@ -101,7 +101,7 @@ analyzer:
   tags: <CLUSTER_TAGS>
 certManager:
   enabled: true
----- 
+----
 
 CAUTION: This will be sufficient for most installations. Additional configuration options can be found in the <<_full_helm_configuration_reference,Full Helm Configuration Reference>>. Change at your own risk or contact ThreatX support for assistance.
 
@@ -139,7 +139,7 @@ kubectl -n my-namespace rollout restart deployment/my-application
 [[upgrading-threatx-prevent,Upgrading ThreatX Prevent]]
 ==== 👆 Upgrading ThreatX Prevent
 
-Use `helm upgrade` to upgrade your version of ThreatX Prevent.  
+Use `helm upgrade` to upgrade your version of ThreatX Prevent.
 
 
 [source,console,caption=""]
@@ -160,7 +160,7 @@ This section will help you setup the _Control Plane Services_, enable _Sensor Si
 [[sidecar-injector-certificates,Sidecar Injector Certificates]]
 === 💉 Sidecar Injector
 
-The _Sidecar Injector_ is a https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/[Kubernetes Mutating Admission Webhook] service that will inject ThreatX the sensor containers into application pods.  
+The _Sidecar Injector_ is a https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/[Kubernetes Mutating Admission Webhook] service that will inject ThreatX the sensor containers into application pods.
 
 .Automatically inject the sidecar into any pods created with this label
 
@@ -186,7 +186,7 @@ If you choose to manage the Runtime Analyzer CA and certificate secrets outside 
 [source,yaml]
 .values.yml
 ----
-externalSecrets: 
+externalSecrets:
   enabled: true
 ----
 
@@ -238,8 +238,8 @@ All application pods with sensors will also need to be restarted (See <<upgradin
 [[application-name,Application Name]]
 === 🏷️ Application Name
 
-For the most accurate tracking of events at the application level the ThreatX Protect sensor needs to derive the name of the application that is monitoring in the pod. 
-This is done by looking at the pod labels.   
+For the most accurate tracking of events at the application level the ThreatX Protect sensor needs to derive the name of the application that is monitoring in the pod.
+This is done by looking at the pod labels.
 
 The `applicationNameLabels` property in the Helm chart is a list of strings that are used to derive the application name. The default list is:
 
@@ -269,7 +269,7 @@ NOTE: Each the _Deployed Sensors_ represents a single instance of *Analyzer*, wh
 [cols="4*", options="header"]
 |=============================================================================================================================================================================================================================================================================================================================================================
 | Key                                            | Type    | Default                                                                   | Description                                                                                                                                                                                                        +
-| certManager.enabled                            | boolean | `true`                                                                    | Use your cluster's cert-manager component to provision certificates for the ThreatX Protect services. See <<sidecar-injector-certificates,Sidecar Injector Certificates>>  
+| certManager.enabled                            | boolean | `true`                                                                    | Use your cluster's cert-manager component to provision certificates for the ThreatX Protect services. See <<sidecar-injector-certificates,Sidecar Injector Certificates>>
 | analyzer.enabled                               | boolean    | `true`                                                                    | Install the Runtime Analyzer service                                                                                                                                                                                  +
 | analyzer.instances                             | int     | `2`                                                                       | The number of Runtime Analyzer instances to run                                                                                                                                                                            +
 | analyzer.image.repository                      | string  | `"public.ecr.aws/threatx/raap/threatx-runtime-analyzer"`                  | Runtime Analyzer image repository                                                                                                                                                                                  +

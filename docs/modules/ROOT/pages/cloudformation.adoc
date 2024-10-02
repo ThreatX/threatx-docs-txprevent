@@ -16,7 +16,7 @@
 :imagesdir: ../images
 :favicon: images/favicon.png
 :experimental: true
-:page-pdf-filename: installing-tx-prevent-aws-ec2-cloudformation.pdf
+:page-pdf-filename: installing-tx-prevent-on-aws-ec2-cloudformation.pdf
 
 == 👋 Introduction
 

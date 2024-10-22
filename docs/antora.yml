@@ -2,5 +2,10 @@
 name: txprevent
 title: TX Prevent
 version: '1.1'
+asciidoc:
+  attributes:
+    product-name: TX Prevent
+    product-version: 1.1.0
+    organization: ThreatX
 nav:
 - modules/ROOT/nav.adoc

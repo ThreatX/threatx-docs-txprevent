@@ -2,7 +2,6 @@
 :description: Step-by-step guide to deploying the ThreatX Prevent sensor and control plane services into a Kuberntes environment.
 :page-category: Installation
 :page-edition: Enterprise
-:product-name: TX Prevent
 :page-module: ROOT
 :page-origin-type: git
 :page-edit-url: https://github.com/ThreatX/txprevent-docs/edit/main/docs/modules/ROOT/pages/kubernetes.adoc
@@ -19,7 +18,6 @@
 :stylesheet: html.css
 :experimental: true
 :page-pdf-filename: installing-tx-prevent-on-kubernetes-helm-chart.pdf
-
 
 
 == 👋 Introduction

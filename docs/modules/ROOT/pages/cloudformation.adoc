@@ -1,11 +1,6 @@
 =  Installing TX Prevent on AWS EC2 : CloudFormation
+// Meta (Asciidoctor) attributes
 :description: Step-by-step guide to deploying the ThreatX Prevent sensor and control plane services into a Amazon enviroment using a CloudFormation template.
-:page-category: Installation
-:page-edition: Enterprise
-:product-name: TX Prevent
-:page-product-name:  TX Prevent
-:organization: ThreatX
-:page-origin-type: git
 :toclevels: 3
 :sectlinks:
 :sectanchors:
@@ -16,7 +11,9 @@
 :imagesdir: ../images
 :favicon: images/favicon.png
 :experimental: true
+// Page Attributes
 :page-pdf-filename: installing-tx-prevent-on-aws-ec2-cloudformation.pdf
+:page-category: Installation
 
 == 👋 Introduction
 
@@ -27,7 +24,7 @@ This document will guide you through an installation of {product-name} into your
 The {product-name} deployment architecture leverages several Amazon Web Services (AWS) components to provide a highly available and secure product.
 
 Runtime sensors will deploy onto EC2 instances alongside the applications or services you want to watch.
-These sensors communicate with the {{organization}} Prevent control plane services.
+These sensors communicate with the {organization} Prevent control plane services.
 
 
 .🛎 Threa️tX Control Plane Services
@@ -252,7 +249,7 @@ docker run -i -p 80:80 -p 50051:50051 \
   -e TARGET_ENVIRONMENT=docker \
   -e ANALYZER_TLS_CA_PEM=./AmazonRootCA1.pem \
   -v /sys/kernel/tracing:/sys/kernel/tracing:ro \
-  public.ecr.aws/threatx/raap/threatx-runtime-sensor:1.0.0
+  public.ecr.aws/threatx/raap/threatx-runtime-sensor:1.1.0
 ----
 <1> The CloudWatch log group name must match the name of the log group created by the CloudFormation stack for the ThreatX Prevent sensor logs.
 <2> The Amazon CA certificate must be mounted into the container for the sensor to trust the control plane certificates. Download: https://www.amazontrust.com/repository/AmazonRootCA1.pem

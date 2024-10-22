@@ -10,11 +10,13 @@ on:
       - 'docs/**'
     branches:
       - '1.0'
+      - '1.1'
   pull_request:
     paths:
       - 'docs/**'
-    branches: 
+    branches:
       - '1.0'
+      - '1.1'
 
 jobs:
 
@@ -28,7 +30,7 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - name: Checkout Repository 
+    - name: Checkout Repository
       uses: actions/checkout@v4
 
     - name: Use Node.js ${{ matrix.node-version }}
@@ -43,10 +45,19 @@ jobs:
         sudo apt-get install -y asciidoctor
         sudo snap install vale
 
+    - name: Lint Antora.yml
+      uses: karancode/yamllint-github-action@master
+      with:
+        yamllint_file_or_dir: docs/antora.yml
+        yamllint_strict: false
+        yamllint_comment: true
+      env:
+        GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Vale Linter
       uses: errata-ai/vale-action@v2.1.0
       with:
         files: docs/
         fail_on_error: false
         level: ${{ github.event.inputs.alertLevel }}
-          
+

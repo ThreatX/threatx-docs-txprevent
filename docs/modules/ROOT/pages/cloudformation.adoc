@@ -1,7 +1,7 @@
 =  Installing TX Prevent on AWS EC2 : CloudFormation
 // Meta (Asciidoctor) attributes
 :description: Step-by-step guide to deploying the ThreatX Prevent sensor and control plane services into a Amazon enviroment using a CloudFormation template.
-:toclevels: 3
+:toclevels: 4
 :sectlinks:
 :sectanchors:
 :sectids:
@@ -12,6 +12,7 @@
 :favicon: images/favicon.png
 :experimental: true
 // Page Attributes
+:tx-prevent-cloudformation-template-url: https://threatx-prevent-cf-template.s3.amazonaws.com/threatx-prevent.yaml
 :page-pdf-filename: installing-tx-prevent-on-aws-ec2-cloudformation.pdf
 :page-category: Installation
 
@@ -32,7 +33,7 @@ These sensors communicate with the {organization} Prevent control plane services
 *Runtime Analyzer* :: A data aggregator, analysis engine, and event router. Connects to ThreatX and emits vulnerability metadata.
 *Scan Template Service* :: Ingests passively detected vulnerability data and generates highly targeted scan templates. Executes individual scans are executed
 and returns the results after determining efficacy.
-*OTEL Collector* :: Coming soon! This service will collect logs and metrics from the sensors and other control plane services and send them back to ThreatX for enhanced product support.
+*OTEL Collector* :: This service collects logs and metrics from the sensors and other control plane services and send them back to ThreatX for enhanced product support.
 ****
 
 <<<
@@ -68,8 +69,6 @@ Each control plane service has multiple instances in at least _two_ availability
 
 *Amazon Certificate Manager (ACM)* :: Provisioning certificates for the control plane services.
 
-*CloudWatch* :: Log aggregation of all logging event from the ThreatX Prevent sensors and control plane services. Provides for the querying of the log information.
-
 <<<
 
 == 📝 Planning
@@ -91,7 +90,7 @@ Only for deployments requiring VPC connectivity between the ThreatX Prevent VPC 
 The following items must be completed before the deployment can begin.
 
 * [ ] 🆔 *Valid ThreatX Tenant ID* (customer name)
-* [ ] 🗝️ *Valid ThreatX API Key*  (See: https://www.threatx.com/documentation/using-threatx/threatx-administrator-guide/#generating-and-revoking-sensor-api-keys[ThreatX Sensor API Key])
+* [ ] 🗝️ *Valid ThreatX API Key*  (See: http://docs.threatx.com/txgeneral/admin_guide.html#generating-and-revoking-sensor-api-keys[ThreatX Sensor API Key])
 * [ ] 👤 *AWS user or role* with either the *AdministratorAccess* policy or our <<iam-permissions,custom deployment IAM policy>>
 * [ ] 🗝️ *EC2 key pair* for SSH access to the EC2 instances. (See <<ec2-key-pair>>)
 * [ ] 🐳 *Docker* installed on the EC2 instances where the sensors will be deployed
@@ -143,7 +142,7 @@ Scanning Requirements :: You may need to adjust security groups to allow ingress
 
 === 📝 Get The  CloudFormation Template
 
-Download the https://threatx-prevent-cf-template.s3.amazonaws.com/threatx-prevent.yaml[ThreatX Prevent CloudFormation template - threatx-prevent.yaml].
+Download the {tx-prevent-cloudformation-template-url}[ThreatX Prevent CloudFormation template - threatx-prevent.yaml].
 
 
 [[template-parameters,Template Parameters]]
@@ -220,45 +219,31 @@ TIP: You can watch creation events under the *Event* tab. To view all the create
 
 == 🚀 Runtime Sensor Deployment
 
-=== 🪪 Sensor IAM Policy
-
-The Runtime Sensor will try push its log information into a CloudWatch group that was created during the Control Plane Deployment:  _<cloudformation-stackname>-ThreatXPrevent-sensor_
-
-To do so, the EC2 instance that the sensor is running on will need to have the following IAM policy attached to its role:
-
-- *<cloudformation-stackname>-sensor-log-policy*
-
-=== 📦️️ Launch the ThreatX Prevent Sensor
+Use the Docker CLI command that follows, making environment-specific changes where needed, to launch the sensor on the EC2 instance where the application to be monitored is running.
 
 [,console]
 ----
 docker run -i -p 80:80 -p 50051:50051 \
   --network host \
-  --log-driver=awslogs \
-  --log-opt awslogs-region=us-east-1 \
-  --log-opt awslogs-group=<cloudformation-stackname>-ThreatXPrevent-sensor \ # <1>
-  --mount type=bind,source=./AmazonRootCA1.pem,target=/AmazonRootCA1.pem \ # <2>
   --cap-add=NET_ADMIN \
-  --cap-add=SYS_ADMIN \
-  -e SENSOR_TAGS=raap-example.raap-example-deployment \  # <3>
-  -e INTERFACE=<see table below> \ # <4>
+  --mount type=bind,source=./AmazonRootCA1.pem,target=/AmazonRootCA1.pem \  # <.>
+  -e SENSOR_TAGS=raap-example.raap-example-deployment \  # <.>
+  -e INTERFACE=<see table below> \  # <.>
   -e RUST_LOG=info \
   -e RUST_BACKTRACE=1 \
   -e ANALYZER_URL=https://tx-analyzer.xplat-sandbox.threatx.io:50051 \
   -e ANALYZER_TLS_ENABLED=true \
-  -e TARGET_ENVIRONMENT=docker \
   -e ANALYZER_TLS_CA_PEM=./AmazonRootCA1.pem \
+  -e TARGET_ENVIRONMENT=docker \
   -v /sys/kernel/tracing:/sys/kernel/tracing:ro \
   public.ecr.aws/threatx/raap/threatx-runtime-sensor:1.1.0
 ----
-<1> The CloudWatch log group name must match the name of the log group created by the CloudFormation stack for the ThreatX Prevent sensor logs.
-<2> The Amazon CA certificate must be mounted into the container for the sensor to trust the control plane certificates. Download: https://www.amazontrust.com/repository/AmazonRootCA1.pem
-<3> For the most accurate tracking of events at the application level the ThreatX Prevent sensor needs to derive the name of the application that it is monitoring on the EC2 instance. This should be set the name of the application that this sensor is working alongside.
-<4> The network interface name must match the name of the network interface for the EC2 instance that the sensor is running on. See the table below for the correct name for your distribution.
+<.> The Amazon CA certificate must be mounted into the container for the sensor to trust the control plane certificates. Download: https://www.amazontrust.com/repository/AmazonRootCA1.pem
+<.> For the most accurate tracking of events at the application level the ThreatX Prevent sensor needs to derive the name of the application that it is monitoring on the EC2 instance. This should be set the name of the application that this sensor is working alongside.
+<.> The network interface name must match the name of the network interface for the EC2 instance that the sensor is running on. See the table below for the correct name for your distribution.
 
-==== 🔌 Network Interface Names for Common Linux Distributions
-
-.Network Interfaces
+.ℹ️ Common Network Interface Names for Linux Distributions
+****
 [cols="2*", options="header"]
 |=============================================================================================================================================================================================================================================================================================================================================================
 | Distribution                                   | Interface +
@@ -271,16 +256,10 @@ docker run -i -p 80:80 -p 50051:50051 \
 |=============================================================================================================================================================================================================================================================================================================================================================
 
 TIP: If your distribution is not listed, you can find the correct interface name by running the `ip a` command on the EC2 instance.
+****
 
 <<<
 
-== 🔍 CloudWatch Logs
-
-The following CloudWatch log groups will be created. They will collect all log output from the ThreatX Prevent sensors and all instances of the control plane services:
-
-- `<cloudformation-stackname>-ThreatXPrevent-sensor`
-- `<cloudformation-stackname>-ThreatXPrevent-analyzer`
-- `<cloudformation-stackname>-ThreatXPrevent-sts`
 
 [[iam-permissions,CloudFormation IAM Permissions]]
 == 🪪 CloudFormation IAM Permissions
@@ -310,7 +289,6 @@ Now we will create a custom policy with the minimum permissions required to crea
 ----
 include::example$cf-iam-policy.json[]
 ----
-
 
 
 . When you are complete, click btn:[Next]

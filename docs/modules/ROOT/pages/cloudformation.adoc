@@ -138,57 +138,8 @@ Scanning Requirements:: You may need to adjust security groups to allow ingress 
 
 [[template-parameters,Template Parameters]]
 === 💲 CloudFormation Template Parameters
+include::partial$cloudformation-template-params.adoc[]
 
-.TX Prevent Configuration Parameters
-[cols="1,1,1,7", options="header"]
-|===
-|Key|Type|Default|Description
-|ApiKey|String||The API key for {product-name}
-|TenantId|String||The Tenant ID for {product-name}
-|LogLevel|String|info|The logging level to use for all services
-|VPC|AWS::EC2::VPC::Id||A virtual private cloud (VPC) to install into. See <<vpc-setup,VPC Setup >>
-|Subnets|List<AWS::EC2::Subnet::Id>||At least two private subnets in different Availability Zones in the selected VPC
-|HostedZoneId|String||The ID of the Hosted Zone in Route53 to add DNS record to. Must align with the specified Hosted Zone Name.
-|KeyName|AWS::EC2::KeyPair::KeyName ||Name of an existing EC2 key pair to allow SSH access to the control plane's EC2 instances
-|GatewayHostname|String|{product-params-gateway-hostname-url}|The Gateway hostname for {product-name}
-|HostedZoneName |String||The Hosed Zone Name in Route53 for the control plane service DNS records. Must align with the specified Hosted Zone Id.
-|LatestAmiId|String|{product-params-latest-ami-id}|The latest AMI ID for the {product-name} services
-|===
-
-.Analyzer Configuration Parameters
-[cols="1,1,1,7", options="header"]
-|===
-|Key|Type |Default|Description
-|AnalyzerTags|String||The tag values for the Runtime Analyzer
-|EnvironmentName|String||The environment name for the Runtime Analyzer
-|AaeCachingEnabled|Boolean|false|Enable caching for the Runtime Analyzer
-|SendCompressed|Boolean|false|Enable compression for the Runtime Analyzer
-|AnalyzerImageTag|String |{product-version}|The tag for the Runtime Analyzer docker image
-|AcceptCompressed|Boolean|false|Accept compressed data for the Runtime Analyzer
-|AnalyzerDesiredInstances|Number |2 |Number of desired Runtime Analyzer instances
-|QueueSampleEnabled |Boolean|false|Enable queue sampling for the Runtime Analyzer
-|EnableStdOutMetrics|Boolean|false|Enable stdout metrics for the Runtime Analyzer
-|EnableCatalogMonitor|Boolean|false|Enable catalog monitoring for the Runtime Analyzer
-|AnalyzerInstanceType|String |t3.small|The EC2 instance type for the Runtime Analyzer instances
-|=== 
-
-.STS Configuration Parameters
-[cols="1,1,1,7", options="header"]
-|===
-|Key|Type|Default|Description
-|StsImageTag|String|{product-version}|The tag for the Scan Template Service docker image
-|StsDesiredInstances|Number|2 |Number of desired Scan Template Service instances
-|StsInstanceType|String|t3.small|The EC2 instance type for the Scan Template Service instances
-|=== 
-
-.OTEL Configuration Parameters
-[cols="1,1,1,7", options="header"]
-|===
-|Key|Type|Default|Description
-|OtelImageTag |String|{product-version}|The tag for the OTEL Collector docker image
-|OtelInstanceType|String|t3.small|The EC2 instance type for the OTEL Collector instances
-|OtelGatewayUrl|String|{product-params-otel-collector-url}|The Gateway URL for the OTEL Collector
-|===
 
 '''
 
@@ -252,20 +203,7 @@ Use the Docker CLI command that follows, making environment-specific changes whe
 
 [,console]
 ----
-docker run -i -p 80:80 -p 50051:50051 \
-  --network host \
-  --cap-add=NET_ADMIN \
-  --mount type=bind,source=./AmazonRootCA1.pem,target=/AmazonRootCA1.pem \  # <.>
-  -e SENSOR_TAGS=raap-example.raap-example-deployment \  # <.>
-  -e INTERFACE=<see table below> \  # <.>
-  -e RUST_LOG=info \
-  -e RUST_BACKTRACE=1 \
-  -e ANALYZER_URL=https://tx-analyzer.xplat-sandbox.threatx.io:50051 \
-  -e ANALYZER_TLS_ENABLED=true \
-  -e ANALYZER_TLS_CA_PEM=./AmazonRootCA1.pem \
-  -e TARGET_ENVIRONMENT=docker \
-  -v /sys/kernel/tracing:/sys/kernel/tracing:ro \
-  public.ecr.aws/threatx/raap/threatx-runtime-sensor:1.1.0
+include::example$launch-docker-container.sh[]
 ----
 <.> The Amazon CA certificate must be mounted into the container for the sensor to trust the control plane certificates. Download: https://www.amazontrust.com/repository/AmazonRootCA1.pem
 <.> For the most accurate tracking of events at the application level the {product-name} sensor needs to derive the name of the application that it is monitoring on the EC2 instance. This should be set the name of the application that this sensor is working alongside.

@@ -4,8 +4,31 @@ title: TX Prevent
 version: '1.1'
 asciidoc:
   attributes:
+    experimental: true
+    toclevels: 4
+    sectlinks: true
+    sectanchors: true
+    sectids: true
+    icons: font
+    source-highlighter: highlightjs
     product-name: TX Prevent
     product-version: 1.1.0
     organization: ThreatX
+    copyright: 2024 ThreatX, Inc.
+    tip-caption: 💡 TIP
+    caution-caption: 🚦 CAUTION
+    note-caption: 📝 NOTE
+    warning-caption: ⚠️ WARNING
+    error-caption: ❌ ERROR
+    important-caption: ❕ IMPORTANT
+    url-gateway-analyzer: threatx-gateway-production-v1.xplat-production.threatx.io
+    url-image-repo-analyzer: public.ecr.aws/threatx/raap/threatx-runtime-analyzer
+    url-image-repo-sensor: public.ecr.aws/threatx/raap/threatx-runtime-sensor
+    url-image-repo-sts: public.ecr.aws/threatx/raap/threatx-sts
+    url-image-repo-sidecarinjector: public.ecr.aws/threatx/raap/threatx-sidecar-injector
+    version-sidecarinjector: {product-version}
+    version-sensor: {product-version}
+    version-analyzer: {product-version}
+    version-sts: {product-version}
 nav:
 - modules/ROOT/nav.adoc

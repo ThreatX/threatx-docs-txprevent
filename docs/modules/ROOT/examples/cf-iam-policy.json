@@ -215,7 +215,7 @@
                 "route53:ChangeResourceRecordSets",
                 "route53:GetHostedZone"
             ],
-            "Resource": "arn:aws:route53:::hostedzone/<hosted-zone-id>"
+            "Resource": "arn:aws:route53:::hostedzone/<hosted-zone-id>_"
         },
         {
             "Effect": "Allow",

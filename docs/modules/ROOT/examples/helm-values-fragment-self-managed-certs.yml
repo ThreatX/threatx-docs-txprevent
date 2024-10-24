@@ -1,0 +1,10 @@
+# For self-managed Analyzer certificates
+analyzer:
+  caCert:
+  serverCert:
+  serverfKey:
+# For self-managed STS certificates
+sts:
+  caCert:
+  serverCert:
+  serverfKey:

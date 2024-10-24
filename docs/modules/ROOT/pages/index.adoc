@@ -1,5 +1,5 @@
 = TX Prevent Documentation 
-:description: Find the right installation guide for your environment and get started with ThreatX Prevent.
+:description: Find the right installation guide for your environment and get started with {product-name}.
 :icons: font
 
 

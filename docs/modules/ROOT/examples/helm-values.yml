@@ -1,0 +1,6 @@
+analyzer:
+  apiKey: <SENSOR_KEY>
+  customer: <TENANT>
+  tags: <CLUSTER_TAGS>
+certManager:
+  enabled: true

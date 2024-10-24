@@ -1,31 +1,23 @@
 = Installing TX Prevent on Kubernetes : Helm Chart
-:description: Step-by-step guide to deploying the ThreatX Prevent sensor and control plane services into a Kuberntes environment.
+:description: Step-by-step guide to deploying the {product-name} sensor and control plane services into a Kuberntes environment.
+:imagesdir: ../images
+:favicon: images/favicon.png
+// Page attributes
 :page-category: Installation
-:page-edition: Enterprise
 :page-module: ROOT
 :page-origin-type: git
 :page-edit-url: https://github.com/ThreatX/txprevent-docs/edit/main/docs/modules/ROOT/pages/kubernetes.adoc
 :page-product-name:  {product-name}
-:toclevels: 3
-:sectlinks:
-:sectanchors:
-:sectids:
-:copyright: 2024 ThreatX, Inc.
-:icons: font
-:imagesdir: ../images
-:favicon: images/favicon.png
-:stylesdir: ../../../resources/theme/html
-:stylesheet: html.css
-:experimental: true
 :page-pdf-filename: installing-tx-prevent-on-kubernetes-helm-chart.pdf
-
+:env-sensor-target-environment: k8s-sidecar
+:prereqs-k8s-version: >=1.22.0-0
 
 == 👋 Introduction
 
 
 This document will guide you through an installation of {product-name} into your Kubernetes environment.
 
-image::threatx-prevent-control-plane.png[width=60%,align=center,caption="ThreatX Control Plane Services and Sensor Sidecar Injector"]
+image::threatx-prevent-control-plane.png[width=60%,align=center,Title="ThreatX Control Plane Services and Sensor Sidecar Injector"]
 
 
 == 🚀 Helm Chart
@@ -35,7 +27,7 @@ If you are not familiar with Helm, please take a moment to familiarize yourself 
 
 === 📋 Prerequisites
 
-*  Kubernetes version `>=1.22.0-0`
+*  Kubernetes version `{prereqs-k8s-version}`
 *  https://www.threatx.com/documentation/using-threatx/threatx-administrator-guide/#generating-and-revoking-sensor-api-keys[ThreatX Sensor API Key]
 *  https://kubernetes.io/docs/tasks/tools[Kubectl CLI]
 *  https://helm.sh/docs/intro/install[Helm CLI]
@@ -43,9 +35,9 @@ If you are not familiar with Helm, please take a moment to familiarize yourself 
 
 .Check Kubernetes Environment
 ====
-[source,console]
+[,console]
 ----
-kubectl version
+$ kubectl version
 ----
 .Example Output
     Client Version: v1.30.1
@@ -54,27 +46,23 @@ kubectl version
 
 ====
 
+'''
 
-=== 📥 Install ThreatX Prevent
+=== 📥 Install {product-name}
 
 
 A helm chart named `threatx-prevent` installs the ThreatX  _Control Plane Services_ and _Sensor Sidecar Injector_ into the `threatx` namespace of the Kubernetes cluster.
 
 
-[source,console]
+[,console]
 .Installing the Helm Chart
 ----
-helm upgrade --namespace threatx --create-namespace --install --debug \
-    --set analyzer.apiKey=<SENSOR_KEY> \ # <1>
-    --set analyzer.customer=<TENANT> \ # <2>
-    --set analyzer.tags=<CLUSTER_TAGS> \ # <3>
-    --set certManager.enabled=true \  # <4>
-threatx-prevent oci://public.ecr.aws/threatx/helm/threatx-prevent
+include::example$install-helm-chart.sh[]
 ----
-<1> The `<SENSOR_KEY>` authenticates the sensor's connection with _ThreatX Gateway_. It should not to be confused with a user's key to the _ThreatX API_. (_See:  https://www.threatx.com/documentation/using-threatx/threatx-administrator-guide/#generating-and-revoking-sensor-api-keys[Generate Sensor API Keys]_)
-<2> The `<TENANT>` is your ThreatX tenant (customer) name.
-<3> See <<application-name, Application Name>>
-<4> The ThreatX Prevent services *requires TLS.* Use https://cert-manager.io[Cert Manager] (`true`) or Helm Long-Term Self-Signed Certificate Provisioning (`false`).
+<.> The `<SENSOR_KEY>` authenticates the sensor's connection with _ThreatX Gateway_. It should not to be confused with a user's key to the _ThreatX API_. (_See:  https://www.threatx.com/documentation/using-threatx/threatx-administrator-guide/#generating-and-revoking-sensor-api-keys[Generate Sensor API Keys]_)
+<.> The `<TENANT>` is your ThreatX tenant (customer) name.
+<.> See <<application-name, Application Name>>
+<.> The {product-name} services *requires TLS.* Use https://cert-manager.io[Cert Manager] (`true`) or Helm Long-Term Self-Signed Certificate Provisioning (`false`).
 
 
 
@@ -90,63 +78,56 @@ threatx-prevent oci://public.ecr.aws/threatx/helm/threatx-prevent
 ****
 Once you know the values you want to use, you can create a `values.yml` file with the values and use the `-f` switch to install the chart (rather than `--set`).
 
-[source,yaml]
 .values.yml
+[,yaml]
 ----
-analyzer:
-  apiKey: <SENSOR_KEY>
-  customer: <TENANT>
-  tags: <CLUSTER_TAGS>
-certManager:
-  enabled: true
+include::example$helm-values.yml[]
 ----
 
 CAUTION: This will be sufficient for most installations. Additional configuration options can be found in the <<_full_helm_configuration_reference,Full Helm Configuration Reference>>. Change at your own risk or contact ThreatX support for assistance.
-
 ****
 
 
-==== 📤 Uninstall ThreatX Prevent
+==== 📤 Uninstall {product-name}
 
-The commands in this section demonstrate complete removal of the ThreatX Prevent control plane and sensors from your Kubernetes cluster
+The commands in this section demonstrate complete removal of the {product-name} control plane and sensors from your Kubernetes cluster
 
 
-[source,console]
+[,console]
 .Remove the control plane
 ----
-helm -n threatx uninstall threatx-prevent
+$ helm -n threatx uninstall threatx-prevent
 ----
 
-[source,console]
+[,console]
 .Remove namespace
 ----
-kubectl delete namespace threatx
+$ kubectl delete namespace threatx
 ----
-
 
 NOTE: Sensor containers will not be removed until the application pods are restarted.
 
-[source,console]
+
+[,console]
 .Restart application pods to remove ThreatX sensors
 ----
-kubectl -n my-namespace rollout restart deployment/my-application
+$ kubectl -n my-namespace rollout restart deployment/my-application
 ----
 
 
+[[upgrading-threatx-prevent,Upgrading {product-name}]]
+==== 👆 Upgrading {product-name}
 
-[[upgrading-threatx-prevent,Upgrading ThreatX Prevent]]
-==== 👆 Upgrading ThreatX Prevent
-
-Use `helm upgrade` to upgrade your version of ThreatX Prevent.
+Use `helm upgrade` to upgrade your version of {product-name}.
 
 
-[source,console,caption=""]
+[,console]
 .Upgrade ThreatX deployment
 ----
-kubectl -n my-namespace rollout restart deployment/my-application
+$ kubectl -n my-namespace rollout restart deployment/my-application
 ----
 
-IMPORTANT: If the upgrade contains a new ThreatX Prevent sensor version you will need to restart your application pods to have the new sensors injected.
+IMPORTANT: If the upgrade contains a new {product-name} sensor version you will need to restart your application pods to have the new sensors injected.
 
 <<<
 
@@ -175,47 +156,38 @@ NOTE: Sidecar injection is always disabled for the `kube-system` namespace.
 
 === 📡 Analyzer & Scanning Template Service (STS)
 
-
+'''
 
 [[external-secrets,External Secrets]]
 ==== 🔏 External Secrets
 If you choose to manage the Runtime Analyzer CA and certificate secrets outside of the Helm chart, you must use these names and set the `externalSecret` property to `true`.
 
-[source,yaml]
-.values.yml
-----
-externalSecrets:
-  enabled: true
-----
-
-
 [horizontal]
-.Naming Requirements
 Certificate Authority (CA) Names::  `threatx-analyzer-ca-tls` or `threatx-sts-ca-tls`
 TLS Secret (certificate) Names:: `threatx-analyzer-server-tls` or `threatx-sts-server-tls`
 
+.values.yml
+[,yaml]
+----
+include::example$helm-values-fragment-external-secrets.yml[]
+----
+
+
+'''
 
 <<<
 
 [[self-managed-certificates,Self Managed Certificates]]
 ==== 💪 Self Managed Certificates
+
 If you want to provision the Analyzer's or STS certificate authority, pass the values into the Helm with the properties below.
 
 IMPORTANT: These values must be provided as *base64* encoded strings.
 
-[source,yaml]
 .values.yml
+[,yaml]
 ----
-# For self-managed Analyzer certificates
-analyzer:
-  caCert:
-  serverCert:
-  serverfKey:
-# For self-managed STS certificates
-sts:
-  caCert:
-  serverCert:
-  serverfKey:
+include::example$helm-values-fragment-self-managed-certs.yml[]
 ----
 
 
@@ -223,13 +195,15 @@ sts:
 
 To renew the self-signed certificates perform a `helm upgrade` with a configuration property of `renewCerts=true`.  After the upgrade command runs you will need to restart the control plane services:
 
-[source,console]
+[,console]
 ----
-kubectl -n threatx rollout restart deployment/threatx-analyzer
-kubectl -n threatx rollout restart deployment/threatx-sts
+$ kubectl -n threatx rollout restart deployment/threatx-analyzer
+$ kubectl -n threatx rollout restart deployment/threatx-sts
 ----
 
-All application pods with sensors will also need to be restarted (See <<upgrading-threatx-prevent,Upgrading ThreatX Prevent>>)
+All application pods with sensors will also need to be restarted (See <<upgrading-threatx-prevent,Upgrading {product-name}>>)
+
+'''
 
 <<<
 
@@ -247,100 +221,16 @@ The `applicationNameLabels` property in the Helm chart is a list of strings that
 
 If your application uses a different label for the application name, you can add it to the list as a helm configuration property.
 
-
-
 image::threatx-prevent-sensor-tags-ctrlx.png[Sensor Tags, align=center,title="Derived application name(s) seen as _Tags_ on the ThreatX _Sensors_ page."]
-
 
 NOTE: Each the _Deployed Sensors_ represents a single instance of *Analyzer*, which in turn can have multiple connected sensors.
 
 
-
 [appendix]
-== Full Helm Configuration Reference
+== Helm Chart Configuration Reference
 
-[%collapsible]
-.(show/hide) Helm Configuration Reference
+[%collapsible%closed]
+.(Show or Hide) All Helm Properties
 ====
-
-.All Properties
-[cols="4*", options="header"]
-|=============================================================================================================================================================================================================================================================================================================================================================
-| Key                                            | Type    | Default                                                                   | Description                                                                                                                                                                                                        +
-| certManager.enabled                            | boolean | `true`                                                                    | Use your cluster's cert-manager component to provision certificates for the ThreatX Protect services. See <<sidecar-injector-certificates,Sidecar Injector Certificates>>
-| analyzer.enabled                               | boolean    | `true`                                                                    | Install the Runtime Analyzer service                                                                                                                                                                                  +
-| analyzer.instances                             | int     | `2`                                                                       | The number of Runtime Analyzer instances to run                                                                                                                                                                            +
-| analyzer.image.repository                      | string  | `"public.ecr.aws/threatx/raap/threatx-runtime-analyzer"`                  | Runtime Analyzer image repository                                                                                                                                                                                  +
-| analyzer.image.tag                             | string  | `"1.0.0"`                                                                 | Runtime Analyzer image tag                                                                                                                                                                                         +
-| analyzer.image.pullPolicy                      | string  | `"IfNotPresent"`                                                          | Runtime Analyzer image pull policy. See https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy[Image Pull Policy] for more information.                                                        +
-| analyzer.apiKey                                | string  | `""`                                                                      | Your ThreatX api key                                                                                                                                                                                               +
-| analyzer.customer                              | string  | `"Ignore"`                                                                | Your ThreatX customer ID                                                                                                                                                                                           +
-| analyzer.gatewayHostname                       | string  | `"threatx-gateway-production-v1.xplat-production.threatx.io"`             | The hostname of the ThreatX gateway server                                                                                                                                                                         +
-| analyzer.sensorTags                            | string  | `""`                                                                      | Tags for your ThreatX data                                                                                                                                                                                         +
-| analyzer.tlsEnabled                            | boolean | `true`                                                                    | TLS enabled for sensor to analyzer communication                                                                                                                                                                   +
-| analyzer.externalSecret                        | boolean    | `false`                                                                   | The secrets for the analyzer will be managed outside of the Helm chart. See <<external-secrets,External Secrets>>                                                                                                  +
-| analyzer.caCert                                | string  | `""`                                                                      | The base64 encoded CA pem to use for the Analyzer. See <<self-managed-certificates,Self Managed Certificates>>                                                                                                     +
-| analyzer.serverCert                            | string  | `""`                                                                      | The base64 encoded CA pem to use for the Analyzer. See <<self-managed-certificates,Self Managed Certificates>>                                                                                                     +
-| analyzer.serverKey                             | string  | `""`                                                                      | The base64 encoded CA pem to use for the Analyzer. See <<self-managed-certificates,Self Managed Certificates>>                                                                                                     +
-| analyzer.stsClientSink                         | string  | `"NoneStsClient"`                                                         | ThreatX STS service output target                                                                                                                                                                                  +
-| analyzer.rawAaeSendCompressed                  | boolean    | `false`                                                                   |                                                                                                                                                                                                                    +
-| analyzer.rawAaeAcceptCompressed                | boolean    | `false`                                                                   |                                                                                                                                                                                                                    +
-| analyzer.enableSampling                        | boolean    | `false`                                                                   |                                                                                                                                                                                                                    +
-| analyzer.stsClientSink                         | string  | `"ApiAnalyzerEventClient"`                                                | Client sink name                                                                                                                                                                                                   +
-| analyzer.stsPort                               | int     | `443`                                                                     | The port number of the STS service                                                                                                                                                                                 +
-| analyzer.stsTlsEnabled                         | boolean    | `true`                                                                    | Enable TLS with the STS service                                                                                                                                                                                    +
-| analyzer.logLevel                              | string  | `"debug"`                                                                 | The logging level                                                                                                                                                                                                  +
-| analyzer.backtrace                             | int     | `1`                                                                       | The logging backtrace level                                                                                                                                                                                        +
-| analyzer.resources.requests.cpu                | string  | `"500m"`                                                                   | Amount of CPU units that the Runtime Analyzer container requests for scheduling. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information.   +
-| analyzer.resources.requests.memory             | string  | `"500Mi"`                                                                 | Amount of memory that the Runtime Analyzer container requests for scheduling. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information.      +
-| analyzer.resources.limits.cpu                  | string  | `"2"`                                                                   | Maximum amount of CPU units that the Runtime Analyzer container can use. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information.           +
-| analyzer.resources.limits.memory               | string  | `"2G"`                                                                 | Maximum amount of memory that the Runtime Analyzer container can use. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information.              +
-| analyzer.scaling.enabled | boolean | `true` | Create a horizontalpodautoscaler for the Runtime Analyzer service +
-| analyzer.scaling.minReplicas | int | `2` | The minimum number of Runtime Analyzer instances to run +
-| analyzer.scaling.maxReplicas | int | `6` | The maximum number of Runtime Analyzer instances to run +
-| analyzer.scaling.cpuUtilPercentage | int | `200` | The percentage of the request cpu limit (analyzer.resources.requests.cpu) to use as a scaling threshold. See: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#how-does-a-horizontalpodautoscaler-work +
-| sensor.image.repository                        | string  | `"public.ecr.aws/threatx/raap/threatx-runtime-sensor"`                    | ThreatX Prevent sensor image repository                                                                                                                                                                                       +
-| sensor.image.tag                               | string  | `"1.0.0"`                                                                 | ThreatX Prevent sensor image tag                                                                                                                                                                                              +
-| sensor.image.pullPolicy                        | string  | `"IfNotPresent"`                                                          | ThreatX Prevent sensor image pull policy. See https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy[Image Pull Policy] for more information.                                                             +
-| sensor.applicationNameLabel                    | list    | ["app.kubernetes.io/name","app","name"]                                   | Comma separated list of pod labels to use for an application/service specific ThreatX Prevent sensor tag. See <<application-name,Application Name>>                                                                                     +
-| sensor.interfaceName                           | string  | `"eth0"`                                                                  | The host network interface name. See <<network-interface,Network Interface>>                                                                                                                                       +
-| sensor.tracingPath                             | string  | `"/sys"`                                                                  | The host tracing path. See <<tracing-path,Tracing path>>                                                                                                                                                           +
-| sensor.logLevel                                | string  | `"debug"`                                                                 | The logging level                                                                                                                                                                                                  +
-| sensor.backtrace                               | int     | `1`                                                                       | The logging backtrace level                                                                                                                                                                                        +
-| sensor.targetEnvironment                       | string  | `"k8s-sidecar"`                                                           | The target environment that the sensor will be running in                                                                                                                                                          +
-| sensor.resources.requests.cpu                  | string  | `"100m"`                                                                   | Amount of CPU units that the ThreatX Prevent sensor container requests for scheduling. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information.        +
-| sensor.resources.requests.memory               | string  | `"250Mi"`                                                                 | Amount of memory that the ThreatX Prevent sensor container requests for scheduling. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information.           +
-| sensor.resources.limits.cpu                    | string  | `"250m"`                                                                   | Maximum amount of CPU units that the ThreatX Prevent sensor container can use. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information.                +
-| sensor.resources.limits.memory                 | string  | `"250Mi"`                                                                 | Maximum amount of memory that the ThreatX Prevent sensor container can use. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information.                   +
-| sts.enabled                                    | boolean    | `true`                                                                    | Install the Scan Template Service                                                                                                                                                                             +
-| sts.instances                                  | int     | `2`                                                                       | The number of Scan Template Service instances to run                                                                                                                                                               +
-| sts.image.repository                           | string  | `"public.ecr.aws/threatx/raap/threatx-sts"`                               | Scan Template Service image repository                                                                                                                                                                             +
-| sts.image.tag                                  | string  | `"1.0.0"`                                                                 | Scan Template Service image tag                                                                                                                                                                                    +
-| sts.image.pullPolicy                           | string  | `"IfNotPresent"`                                                          | Scan Template Service image pull policy. See https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy[Image Pull Policy] for more information.                                                   +
-| sts.grpcTlsEnabled                             | booleanean | `true`                                                                    | TLS enabled                                                                                                                                                                                                        +
-| sts.grpcListenPort                             | string  | `"50051"`                                                                 | The gRPC listener port                                                                                                                                                                                              +
-| sts.externalSecret                             | boolean    | `false`                                                                   | The secrets for the analyzer will be managed outside of the Helm chart. See <<external-secrets,External Secrets>>                                                                                                  +
-| sts.caCert                                     | string  | `""`                                                                      | The base64 encoded CA `.PEM` to use for the Analyzer. See <<self-managed-certificates,Self Managed Certificates>>                                                                                                     +
-| sts.serverCert                                 | string  | `""`                                                                      | The base64 encoded CA pem to use for the Analyzer. See <<self-managed-certificates,Self Managed Certificates>>                                                                                                     +
-| sts.serverKey                                  | string  | `""`                                                                      | The base64 encoded CA pem to use for the Analyzer. See <<self-managed-certificates,Self Managed Certificates>>                                                                                                     +
-| sts.logLevel                                   | string  | `"debug"`                                                                 | The logging level                                                                                                                                                                                                  +
-| sts.resources.requests.cpu                     | string  | `"500m"`                                                                   | Amount of CPU units that the STS container requests for scheduling. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information.   +
-| sts.resources.requests.memory                  | string  | `"500Mi"`                                                                 | Amount of memory that the STS container requests for scheduling. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information.      +
-| sts.resources.limits.cpu                       | string  | `"2"`                                                                   | Maximum amount of CPU units that the STS container can use. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information.           +
-| sts.resources.limits.memory                    | string  | `"2G"`                                                                 | Maximum amount of memory that the STS container can use. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information.              +
-| sts.scaling.enabled | booleanean | `true` | Create a horizontalpodautoscaler for the STS service +
-| sts.scaling.minReplicas | int | `2` | The minimum number of STS instances to run +
-| sts.scaling.maxReplicas | int | `6` | The maximum number of STS instances to run +
-| sts.scaling.cpuUtilPercentage | int | `200` | The percentage of the request cpu limit (sts.resources.requests.cpu) to use as a scaling threshold. See: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#how-does-a-horizontalpodautoscaler-work +
-| sidecarInjector.enabled                        | boolean    | `true`                                                                    | Install the ThreatX Prevent Sidecar Injector service                                                                                                                                                                          +
-| sidecarInjector.image.repository               | string  | `"public.ecr.aws/threatx/raap/threatx-sidecar-injector"`                  | ThreatX Prevent sidecar injector image repository                                                                                                                                                                             +
-| sidecarInjector.image.tag                      | string  | `"1.0.0"`                                                                 | ThreatX Prevent sidecar injector image tag                                                                                                                                                                                    +
-| sidecarInjector.image.pullPolicy               | string  | `"IfNotPresent"`                                                          | ThreatX Prevent sidecar injector image pull policy. See https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy[Image Pull Policy] for more information.                                                   +                                                +
-| sidecarInjector.resources.requests.cpu         | string  | `"100m"`                                                                   | Amount of CPU units that the ThreatX Prevent sidecar injector container requests for scheduling. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information.
-| sidecarInjector.resources.requests.memory      | string  | `"100Mi"`                                                                 | Amount of memory that the ThreatX Prevent sidecar injector container requests for scheduling. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information. +
-| sidecarInjector.resources.limits.cpu           | string  | `"200m"`                                                                   | Maximum amount of CPU units that the ThreatX Prevent sidecar injector container can use. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information.      +
-| sidecarInjector.resources.limits.memory        | string  | `"200Mi"`                                                                 | Maximum amount of memory that the ThreatX Prevent sidecar injector container can use. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Requests and Limits] for more information.         +
-| renewCerts                                     | boolean    | `false`                                                                    | Renew the control plane service certificates +
-|=============================================================================================================================================================================================================================================================================================================================================================
-
+include::partial$helm-configuration-reference.adoc[]
 ====

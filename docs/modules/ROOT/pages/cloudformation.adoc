@@ -1,20 +1,15 @@
 =  Installing TX Prevent on AWS EC2 : CloudFormation
 // Meta (Asciidoctor) attributes
 :description: Step-by-step guide to deploying the ThreatX Prevent sensor and control plane services into a Amazon enviroment using a CloudFormation template.
-:toclevels: 4
-:sectlinks:
-:sectanchors:
-:sectids:
-:copyright: 2024 ThreatX, Inc.
-:icons: font
-:source-highlighter: highlightjs
 :imagesdir: ../images
 :favicon: images/favicon.png
-:experimental: true
 // Page Attributes
-:tx-prevent-cloudformation-template-url: https://threatx-prevent-cf-template.s3.amazonaws.com/threatx-prevent.yaml
 :page-pdf-filename: installing-tx-prevent-on-aws-ec2-cloudformation.pdf
 :page-category: Installation
+:tx-prevent-cloudformation-template-url: https://threatx-prevent-cf-template.s3.amazonaws.com/threatx-prevent.yaml
+:product-params-otel-collector-url: https://otlp-grpc-production.xplat-aml-prod.threatx.io
+:product-params-gateway-hostname-url: threatx-grpc2kafka-production-v1.xplat-production.threatx.io
+:product-params-latest-ami-id: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64
 
 == 👋 Introduction
 
@@ -27,20 +22,7 @@ The {product-name} deployment architecture leverages several Amazon Web Services
 Runtime sensors will deploy onto EC2 instances alongside the applications or services you want to watch.
 These sensors communicate with the {organization} Prevent control plane services.
 
-
-.🛎 Threa️tX Control Plane Services
-****
-*Runtime Analyzer* :: A data aggregator, analysis engine, and event router. Connects to ThreatX and emits vulnerability metadata.
-*Scan Template Service* :: Ingests passively detected vulnerability data and generates highly targeted scan templates. Executes individual scans are executed
-and returns the results after determining efficacy.
-*OTEL Collector* :: This service collects logs and metrics from the sensors and other control plane services and send them back to ThreatX for enhanced product support.
-****
-
-<<<
-
-=== 🎨️ Context Diagram
-image::threatx-prevent-aws-architecture.png[width=100%,role=center,title="TX Prevent Deployment Architecture"]
-
+image::threatx-prevent-aws-architecture.png[width=100%,role=center,title="TX Prevent Context Diagram"]
 
 === 🚄 High Availability
 - For each control plane service, instances are created in multiple availability zones
@@ -54,43 +36,52 @@ image::threatx-prevent-aws-architecture.png[width=100%,role=center,title="TX Pre
 
 <<<
 
-=== 🌳️ AWS Components and Services
+=== 🎛️ Threa️tX Control Plane Services
 
-*Application Load Balancer (ALB)* :: Fronts the ThreatX Prevent control plane services.
+[horizontal,labelwidth=25,itemwidth=75]
+*Runtime Analyzer*:: A data aggregator, analysis engine, and event router. Connects to ThreatX and emits vulnerability metadata.
+*Scan Template Service*:: Ingests passively detected vulnerability data and generates highly targeted scan templates. Executes individual scans are executed
+and returns the results after determining efficacy.
+*OTEL Collector*:: This service collects logs and metrics from the sensors and other control plane services and send them back to ThreatX for enhanced product support.
+
+
+=== ☁ AWS Components and Services
+
+[horizontal,labelwidth=35,itemwidth=65]
+*Application Load Balancer (ALB)*:: Fronts the {product-name} control plane services.
 Each control plane service has multiple instances in at least _two_ availability zones for high availability with the ALB distributing traffic between them.
-
-*Auto Scaling Group (ASG)* :: Maintains the desired number of healthy service EC2 instances. If an instance becomes unhealthy or is unexpectedly terminated the ASG will create another instance.
-
-*Parameter Store* :: Configuration properties for sensors and control plane services.
-
-*Secrets Manager* :: Sensitive configuration properties.
-
-*Route53* :: DNS records for the control plane services.
-
-*Amazon Certificate Manager (ACM)* :: Provisioning certificates for the control plane services.
+*Auto Scaling Group (ASG)*:: Maintains the desired number of healthy service EC2 instances. If an instance becomes unhealthy or is unexpectedly terminated the ASG will create another instance.
+*Parameter Store*:: Configuration properties for sensors and control plane services.
+*Secrets Manager*:: Sensitive configuration properties.
+*Route53*:: DNS records for the control plane services.
+*Certificate Manager (ACM)*:: Provisioning certificates for the control plane services.
 
 <<<
 
-== 📝 Planning
-This deployment requires familiarity with the following AWS services:
+== 🚦 Prerequisites
+
+.📚 **Recommended Reading**
+[TIP]
+****
+Performing this deployment process requires familiarity with the following AWS services:
 
 - https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html[Amazon VPC]
 - https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html[AWS CloudFormation]
 - https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html[AWS Route53]
 
-Only for deployments requiring VPC connectivity between the ThreatX Prevent VPC and other VPC containing monitored application/service:
+Additonally, for deployments requiring VPC connectivity between the {product-name} VPC and another VPC containing monitored application/service:
 
 - https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html[AWS VPC Peering]
 - https://docs.aws.amazon.com/whitepapers/latest/building-scalable-secure-multi-vpc-network-infrastructure/transit-gateway.html[AWS Transit Gateway]
+****
 
-== 🚦 Prerequisites
 
 === ✈ Preflight Checklist
 
 The following items must be completed before the deployment can begin.
 
 * [ ] 🆔 *Valid ThreatX Tenant ID* (customer name)
-* [ ] 🗝️ *Valid ThreatX API Key*  (See: http://docs.threatx.com/txgeneral/admin_guide.html#generating-and-revoking-sensor-api-keys[ThreatX Sensor API Key])
+* [ ] 🗝️ *Valid ThreatX API Key*  (See http://docs.threatx.com/txgeneral/admin_guide.html#generating-and-revoking-sensor-api-keys[ThreatX Sensor API Key])
 * [ ] 👤 *AWS user or role* with either the *AdministratorAccess* policy or our <<iam-permissions,custom deployment IAM policy>>
 * [ ] 🗝️ *EC2 key pair* for SSH access to the EC2 instances. (See <<ec2-key-pair>>)
 * [ ] 🐳 *Docker* installed on the EC2 instances where the sensors will be deployed
@@ -101,10 +92,9 @@ The following items must be completed before the deployment can begin.
  ** *1* internet gateway
  ** *1* NAT gateway
 
-<<<
-
-=== ☁️ Basic VPC Topology
 image::threatx-prevent-standard-vpc-topology.png[width=100%,title="TX Prevent Standard VPC Topology"]
+
+<<<
 
 [[ec2-key-pair,EC2 Key Pair]]
 === 🗝️ Creating an EC2 Key Pair
@@ -123,97 +113,136 @@ The EC2 Key pair will be used to SSH into the ThreatX Control Plane EC2 instance
 
 The private key will then be downloaded to your system.
 
-CAUTION: Put this key in a safe place. It can be used to SSH into any of ThreatX Prevent EC2's.
+CAUTION: Put this key in a safe place. It can be used to SSH into any of {product-name} EC2's.
 
 
 [[system-requirements,Runtime Sensor System Requirements]]
 === 💻 Runtime Sensor System Requirements
 
-Resources :: It is recommended to have *at least 2 cores* and *300MB of memory* available on the EC2 instance that they will be running on.
-
-Network Connectivity :: If Sensors are deployed into a _different VPC than that of the control plane_, VPC peering or Transit Gateway connectivity will need to be setup between the VPCs.
-
-Scanning Requirements :: You may need to adjust security groups to allow ingress traffic from the Scan Template Service to the target endpoints.
+[horizontal,labelwidth=20,itemwidth=80]
+Resources:: It is recommended to have *at least 2 cores* and *300MB of memory* available on the EC2 instance that they will be running on.
+Network Connectivity:: If Sensors are deployed into a _different VPC than that of the control plane_, VPC peering or Transit Gateway connectivity will need to be setup between the VPCs.
+Scanning Requirements:: You may need to adjust security groups to allow ingress traffic from the Scan Template Service to the target endpoints.
 
 
 <<<
 
 == 🚀 Control Plane Deployment
 
-=== 📝 Get The  CloudFormation Template
 
-Download the {tx-prevent-cloudformation-template-url}[ThreatX Prevent CloudFormation template - threatx-prevent.yaml].
+[INFORMATION]
+****
+{tx-prevent-cloudformation-template-url}[*Download the {product-name} CloudFormation template* - __{tx-prevent-cloudformation-template-url}__]
+****
 
 
 [[template-parameters,Template Parameters]]
-=== 💲 Template Parameters
+=== 💲 CloudFormation Template Parameters
 
-[%collapsible%open]
-.(show/hide) *💲 ThreatX Prevent CloudFormation Template Parameters*
-====
+.TX Prevent Configuration Parameters
+[cols="1,1,1,7", options="header"]
+|===
+|Key|Type|Default|Description
+|ApiKey|String||The API key for {product-name}
+|TenantId|String||The Tenant ID for {product-name}
+|LogLevel|String|info|The logging level to use for all services
+|VPC|AWS::EC2::VPC::Id||A virtual private cloud (VPC) to install into. See <<vpc-setup,VPC Setup >>
+|Subnets|List<AWS::EC2::Subnet::Id>||At least two private subnets in different Availability Zones in the selected VPC
+|HostedZoneId|String||The ID of the Hosted Zone in Route53 to add DNS record to. Must align with the specified Hosted Zone Name.
+|KeyName|AWS::EC2::KeyPair::KeyName ||Name of an existing EC2 key pair to allow SSH access to the control plane's EC2 instances
+|GatewayHostname|String|{product-params-gateway-hostname-url}|The Gateway hostname for {product-name}
+|HostedZoneName |String||The Hosed Zone Name in Route53 for the control plane service DNS records. Must align with the specified Hosted Zone Id.
+|LatestAmiId|String|{product-params-latest-ami-id}|The latest AMI ID for the {product-name} services
+|===
 
-.AWS Properties
-[cols="4*", options="header"]
-|=============================================================================================================================================================================================================================================================================================================================================================
-| Key                                            | Type    | Default                                                                   | Description                                                                                                                                                                                                        +
-| VPC                                            | String  |                                                                           | A virtual private cloud (VPC) to install into. See <<vpc-setup,VPC Setup >> +
-| Subnets                                        | List<String> |                                                                      | At least two private subnets in different Availability Zones in the selected VPC +
-| HostedZoneId                                   | String  |                                                                           | The ID of the Hosted Zone in Route53 to add DNS record to. Must align with the specified Hosted Zone Name. +
-| HostedZoneName                                 | String  |                                                                           | The Hosed Zone Name in Route53 for the control plane service DNS records. Must align with the specified Hosted Zone Id. +
-| KeyName                                        | String  |                                                                           | Name of an existing EC2 key pair to allow SSH access to the control plane's EC2 instances +
-|=============================================================================================================================================================================================================================================================================================================================================================
+.Analyzer Configuration Parameters
+[cols="1,1,1,7", options="header"]
+|===
+|Key|Type |Default|Description
+|AnalyzerTags|String||The tag values for the Runtime Analyzer
+|EnvironmentName|String||The environment name for the Runtime Analyzer
+|AaeCachingEnabled|Boolean|false|Enable caching for the Runtime Analyzer
+|SendCompressed|Boolean|false|Enable compression for the Runtime Analyzer
+|AnalyzerImageTag|String |{product-version}|The tag for the Runtime Analyzer docker image
+|AcceptCompressed|Boolean|false|Accept compressed data for the Runtime Analyzer
+|AnalyzerDesiredInstances|Number |2 |Number of desired Runtime Analyzer instances
+|QueueSampleEnabled |Boolean|false|Enable queue sampling for the Runtime Analyzer
+|EnableStdOutMetrics|Boolean|false|Enable stdout metrics for the Runtime Analyzer
+|EnableCatalogMonitor|Boolean|false|Enable catalog monitoring for the Runtime Analyzer
+|AnalyzerInstanceType|String |t3.small|The EC2 instance type for the Runtime Analyzer instances
+|=== 
 
-.Product Configuration
-[cols="4*", options="header"]
-|=============================================================================================================================================================================================================================================================================================================================================================
-| Key                                            | Type    | Default                                                                   | Description                                                                                                                                                                                                        +
-| TenantId                                       | String  |                                                                           | The Tenant ID for ThreatX Prevent +
-| ApiKey                                         | String  |                                                                           | The API key for ThreatX Prevent +
-| GatewayHostname                                | String  | threatx-gateway-production-v1.xplat-production.threatx.io                 | The Gateway hostname for ThreatX Prevent +
-| AnalyzerTags                                   | String  |                                                                           | The tag values for the Runtime Analyzer +
-| AnalyzerDesiredInstances                       | Number  | `2`                                                                       | Number of desired Runtime Analyzer instances +
-| AnalyzerImageTag                               | String  | `1.0.1`                                                                   | The tag for the Runtime Analyzer docker image +
-| AnalyzerInstanceType                           | String  | `t3.small`                                                                | The EC2 instance type for the Runtime Analyzer instances +
-| StsDesiredInstances                            | Number  | `2`                                                                       | Number of desired Scan Template Service instances +
-| StsImageTag                                    | String  | `1.0.1`                                                                   | The tag for the Scan Template Service docker image +
-| StsInstanceType                                | String  | `t3.small`                                                                | The EC2 instance type for the Scan Template Service instances +
-| LogLevel                                       | String  | `info`                                                                    | The logging level to use for all services +
-|=============================================================================================================================================================================================================================================================================================================================================================
+.STS Configuration Parameters
+[cols="1,1,1,7", options="header"]
+|===
+|Key|Type|Default|Description
+|StsImageTag|String|{product-version}|The tag for the Scan Template Service docker image
+|StsDesiredInstances|Number|2 |Number of desired Scan Template Service instances
+|StsInstanceType|String|t3.small|The EC2 instance type for the Scan Template Service instances
+|=== 
 
-====
+.OTEL Configuration Parameters
+[cols="1,1,1,7", options="header"]
+|===
+|Key|Type|Default|Description
+|OtelImageTag |String|{product-version}|The tag for the OTEL Collector docker image
+|OtelInstanceType|String|t3.small|The EC2 instance type for the OTEL Collector instances
+|OtelGatewayUrl|String|{product-params-otel-collector-url}|The Gateway URL for the OTEL Collector
+|===
+
+'''
+
 <<<
 
-=== 📋 Deployment Steps
-. Sign in to your AWS account via the AWS Console. Select the desired region for the deployment.
+=== 📋 Step-by-Step Deployment Instructions
 
-. Open the 📄 *CloudFormation* console
+Follow these steps ️to deploy the CloudFormation stack to create the {product-name} services in your AWS environment.
+
+
+==== 1️⃣ Add the {product-name} CloudFormation Template
+. Sign in to your AWS account via the link:https://console.aws.amazon.com[AWS Console]. Select the desired region for the deployment.
+
+. Open the link:https://console.aws.amazon.com/cloudformation/home[CloudFormation console]
 
 . Select btn:[Create stack] and btn:[With new resources (standard)]
 
-. Select btn:[Choose an existing template]. Then add the URL for the ThreatX Prevent template to the *Amazon S3 URL* field:
+. Select btn:[Choose an existing template] and then add the URL for the {product-name} template to the *Amazon S3 URL* field
 
-    https://threatx-prevent-cf-template.s3.amazonaws.com/threatx-prevent.yaml
+[,console]
+.{product-name} CloudFormation Template URL
+----
+https://threatx-prevent-cf-template.s3.amazonaws.com/threatx-prevent.yaml
+----
 
-image::threatx-prevent-create-stack.png[width=100%,title="ThreatX Prevent Standard VPC Setup"]
+image::threatx-prevent-create-stack.png[width=100%,title="{product-name} Standard VPC Setup"]
 
-. On the 📄 *Specify stack details* page:
-.. For the *Stack Name*, enter: _ThreatXPrevent_
-.. Review all the parameters (<<template-parameters>>) for the template. Provide values for the parameters that require input. For all other parameters, review the default settings and customize them as necessary. When you are finished, select btn:[Next].
+==== 2️⃣ Configure the Stack Details
 
-. On the 📄 *Configure Stack Options* page:
-.. (optional) Specify tags for the resources in your stack and set any advanced options you want.
-.. When you finish, choose btn:[Next].
+__📍 On the 📄 *Specify stack details* Page__
 
-. On the 📄 *Review* page:
-.. Review and confirm all of the template settings.
-.. Under *Capabilities*, review and select the check boxes to acknowledge.
-.. Choose btn:[Create Stack].
+. In the *Stack Name* field, enter: _ThreatXPrevent_
+. Review all the parameters (<<template-parameters>>) for the template. Provide values for the parameters that require input. For all other parameters, review the default settings and customize them as necessary. 
+. Select btn:[Next]
 
-The ThreatX Prevent deployment is ready when the stack status is *CREATE_COMPLETE*. Stack creation should take 5 to 10 minutes.
+==== 3️⃣ Configure the Stack Options
+__📍  On the 📄 *Configure Stack Options* Page __
+
+. __(optional)__ Specify tags for the resources in your stack and set any advanced options you want.
+. Select btn:[Next]
+
+==== 4️⃣ Review and Create the Stack
+
+__📍 On the 📄 *Review* page ...__
+
+. Review and confirm all of the template settings.
+. Under *Capabilities*, review and select the check boxes to acknowledge.
+. Select btn:[Create Stack]
+
+NOTE: The {product-name} deployment is ready when the stack status is *CREATE_COMPLETE*.  Stack creation should take *5 to 10 minutes*.
 
 TIP: You can watch creation events under the *Event* tab. To view all the created resources, choose the *Outputs* tab.
 
-
+'''
 
 <<<
 
@@ -239,7 +268,7 @@ docker run -i -p 80:80 -p 50051:50051 \
   public.ecr.aws/threatx/raap/threatx-runtime-sensor:1.1.0
 ----
 <.> The Amazon CA certificate must be mounted into the container for the sensor to trust the control plane certificates. Download: https://www.amazontrust.com/repository/AmazonRootCA1.pem
-<.> For the most accurate tracking of events at the application level the ThreatX Prevent sensor needs to derive the name of the application that it is monitoring on the EC2 instance. This should be set the name of the application that this sensor is working alongside.
+<.> For the most accurate tracking of events at the application level the {product-name} sensor needs to derive the name of the application that it is monitoring on the EC2 instance. This should be set the name of the application that this sensor is working alongside.
 <.> The network interface name must match the name of the network interface for the EC2 instance that the sensor is running on. See the table below for the correct name for your distribution.
 
 .ℹ️ Common Network Interface Names for Linux Distributions
@@ -264,24 +293,24 @@ TIP: If your distribution is not listed, you can find the correct interface name
 [[iam-permissions,CloudFormation IAM Permissions]]
 == 🪪 CloudFormation IAM Permissions
 
-There are two options for obtaining the permissions needed to create the ThreatX Prevent stack:
+There are two options for obtaining the permissions needed to create the {product-name} stack:
 
 . Using an existing user or role with the *AdministratorAccess* policy
 . Creating a new custom IAM policy with the minimum required permissions according to least privilege which will be assigned to the existing user or role you want to use for installation (continue reading next section)
 
 === 🔐 Configure AWS with the Minimum Permissions Required for Stack Creation
 
-Now we will create a custom policy with the minimum permissions required to create the ThreatX Prevent stack.
+Now we will create a custom policy with the minimum permissions required to create the {product-name} stack.
 
 ==== 📜 Create a Custom Policy
-* On the 📄 *AWS Services* page, Select btn:[IAM].
-* From 📄 *IAM Dashboard*, select 📋 menu:Main Menu (left)[Policies]
-* On the 📄 *Policies* page, Select btn:[Create policy]
-* On the 📄 *Specify Permissions* page, under the *JSON* tab:
+. On the 📄 *AWS Services* page, Select btn:[IAM].
+. From 📄 *IAM Dashboard*, select 📋 menu:Main Menu (left)[Policies]
+. On the 📄 *Policies* page, Select btn:[Create policy]
+. On the 📄 *Specify Permissions* page, under the *JSON* tab:
 . Copy the JSON below into the Policy editor.
 . ❗ Replace all placeholder instances with your actual values:
-** `<account-id>` with your __AWS Account ID__
-** `<hosted-zone-id>` with your __AWS Route53 Hosted Zone ID__
+.. `<account-id>` with your __AWS Account ID__
+.. `<hosted-zone-id>` with your __AWS Route53 Hosted Zone ID__
 
 
 [,json]
